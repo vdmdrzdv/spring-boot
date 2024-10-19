@@ -11,7 +11,7 @@ public class RequestValidationService implements ValidationService {
     @Override
     public void isValid(BindingResult bindingResult) throws ValidationFailedException, UnsupportedCodeException {
         if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult.getFieldError().toString());
+            throw new ValidationFailedException(bindingResult.getFieldError().getField().toString() + ": " + bindingResult.getFieldError().getDefaultMessage().toString());
         }
         Request request = (Request) bindingResult.getTarget();
         if ("123".equals(request.getUid())) {
