@@ -1,6 +1,8 @@
 package ru.drozdov.MySpringBoot2Dbase.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.drozdov.MySpringBoot2Dbase.entity.Student;
 import ru.drozdov.MySpringBoot2Dbase.service.StudentService;
@@ -15,28 +17,48 @@ public class MyController {
     private StudentService studentService;
 
     @GetMapping("/students")
-    public List<Student> allStudents() {
-        return studentService.getAllStudents();
+    public ResponseEntity<List<Student>> allStudents() {
+        List<Student> students = studentService.getAllStudents();
+        return ResponseEntity.ok(students);
     }
 
     @GetMapping("/students/{id}")
-    public Student getStudent(@PathVariable("id") int id) {
-        return studentService.getStudent(id);
+    public ResponseEntity<Student> getStudent(@PathVariable("id") int id) {
+        Student student = studentService.getStudent(id);
+        if (student != null) {
+            return ResponseEntity.ok(student);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/students")
-    public Student saveStudent(@RequestBody Student student) {
-        return studentService.saveStudent(student);
+    public ResponseEntity<String> saveStudent(@RequestBody Student student) {
+        Student savedStudent = studentService.saveStudent(student);
+        if (savedStudent != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body("Студент успешно создан с ID: " + savedStudent.getId());
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при создании студента");
+        }
     }
 
     @PutMapping("/students")
-    public Student updateStudent(@RequestBody Student student) {
-        studentService.saveStudent(student);
-        return student;
+    public ResponseEntity<String> updateStudent(@RequestBody Student student) {
+        boolean isUpdated = studentService.updateStudent(student);
+        if (isUpdated) {
+            return ResponseEntity.ok("Студент успешно обновлен");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Студент с ID " + student.getId() + " не найден");
+        }
     }
 
     @DeleteMapping("/students/{id}")
-    public void deleteStudent(@PathVariable("id") int id) {
-        studentService.deleteStudent(id);
+    public ResponseEntity<String> deleteStudent(@PathVariable("id") int id) {
+        boolean isDeleted = studentService.deleteStudent(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("Студент успешно удален");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Студент с ID " + id + " не найден");
+        }
     }
 }

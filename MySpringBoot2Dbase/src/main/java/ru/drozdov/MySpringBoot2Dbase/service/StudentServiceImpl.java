@@ -34,7 +34,21 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional
-    public void deleteStudent(int id) {
-        studentDAO.deleteStudent(id);
+    public boolean updateStudent(Student student) {
+        if (studentDAO.getStudent(student.getId()) != null) {
+            studentDAO.saveStudent(student);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteStudent(int id) {
+        if (studentDAO.getStudent(id) != null) {
+            studentDAO.deleteStudent(id);
+            return true;
+        }
+        return false;
     }
 }
